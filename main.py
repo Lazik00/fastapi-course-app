@@ -47,6 +47,7 @@ create_default_admin()
 video_folder = "videos"
 os.makedirs(video_folder, exist_ok=True)
 app.mount("/videos", StaticFiles(directory=video_folder), name="videos")
+app.mount("/media", StaticFiles(directory="media"), name="media")
 
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(courses.router, prefix="/courses", tags=["Courses"])

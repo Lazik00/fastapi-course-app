@@ -1,21 +1,48 @@
 # routes/category.py
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import  HTTPException
+from core.security import admin_required,get_current_user
+from fastapi import APIRouter, UploadFile, File, Form, Depends
 from sqlalchemy.orm import Session
+import shutil
+import os
 from db.session import get_db
 from models.category import Category
-from schemas.category import CategoryCreate, CategoryOut
-from core.security import admin_required,get_current_user
-
+from schemas.category import CategoryOut
+from core.security import admin_required
 router = APIRouter(prefix="", tags=["Categories"])
 
+
+UPLOAD_DIR = "media/categories"
+os.makedirs(UPLOAD_DIR, exist_ok=True)
+
 @router.post("/", response_model=CategoryOut)
-def create_category(category: CategoryCreate, db: Session = Depends(get_db),current_user=Depends(admin_required)
+def create_category(
+    name: str = Form(...),
+    description: str = Form(...),
+    image: UploadFile = File(...),
+    db: Session = Depends(get_db),
+    current_user=Depends(admin_required)
 ):
-    db_category = Category(**category.dict())
+    # 📁 Faylni saqlash
+    folder_path = "media/categories"
+    os.makedirs(folder_path, exist_ok=True)
+    save_path = os.path.join(folder_path, image.filename)
+
+    with open(save_path, "wb") as buffer:
+        shutil.copyfileobj(image.file, buffer)
+
+    file_url = f"/media/categories/{image.filename}"
+
+    db_category = Category(
+        name=name,
+        description=description,
+        image=file_url
+    )
     db.add(db_category)
     db.commit()
     db.refresh(db_category)
     return db_category
+
 
 @router.get("/", response_model=list[CategoryOut])
 def list_categories(db: Session = Depends(get_db)):
