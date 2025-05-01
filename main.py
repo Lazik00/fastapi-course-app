@@ -39,6 +39,8 @@ app = FastAPI()
 # 🔐 OAuth2
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="login")
 
+from db.init_db import create_tables
+
 create_tables()
 create_default_admin()
 
