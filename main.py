@@ -3,6 +3,7 @@ from fastapi import FastAPI, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
+from starlette.middleware.cors import CORSMiddleware
 
 from db.base import Base
 from db.session import engine, SessionLocal
@@ -52,7 +53,13 @@ app.mount("/media", StaticFiles(directory="media"), name="media")
 app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(courses.router, prefix="/courses", tags=["Courses"])
 app.include_router(categories.router, prefix="/categories", tags=["Categories"])
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*","http://localhost:5173"],  # yoki ["http://localhost:5173"] — xavfsizroq
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 @app.get("/")
 def protected_route(token: str = Depends(oauth2_scheme)):
     return {"message": "Bu himoyalangan yo‘l", "token": token}
