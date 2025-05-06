@@ -53,5 +53,5 @@ def get_courses_by_category(category_id: int, db: Session = Depends(get_db),curr
 ):
     category = db.query(Category).filter(Category.id == category_id).first()
     if not category:
-        raise HTTPException(status_code=404, detail="Kategoriya topilmadi.")
+        raise HTTPException(status_code=404, detail="Kategoriya topilmadi!")
     return category.courses
